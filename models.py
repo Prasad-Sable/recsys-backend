@@ -65,6 +65,7 @@ class QuizResult(BaseModel):
 class RecommendRequest(BaseModel):
     available_time: int
     topics: Optional[List[str]] = None
+    custom_topic: Optional[str] = None
 
 
 # ─── Dashboard Models ──────────────────────────────────────

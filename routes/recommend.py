@@ -46,8 +46,15 @@ async def recommend_lessons(req: RecommendRequest, user=Depends(get_current_user
         target_difficulty = level
 
     # GENERATE AI LESSONS ON THE FLY
-    # Pick 2 random interests to generate lessons for
-    selected_topics = random.sample(interests, min(2, len(interests)))
+    # If custom_topic is provided, use it. Otherwise pick random interests.
+    if req.custom_topic:
+        # Use custom topic + 1 random interest for variety
+        selected_topics = [req.custom_topic]
+        if interests:
+            other_topic = random.choice([t for t in interests if t != req.custom_topic] or interests)
+            selected_topics.append(other_topic)
+    else:
+        selected_topics = random.sample(interests, min(2, len(interests)))
     
     # We will generate 2 lessons concurrently using the OpenRouter AI LLM
     tasks = [

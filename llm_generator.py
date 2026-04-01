@@ -21,13 +21,17 @@ async def generate_lesson_via_llm(topic: str, difficulty: str, duration: int) ->
     """
     prompt = f"""
     You are an expert micro-learning content creator. 
-    Create a highly engaging, brief {duration}-minute lesson about "{topic}" at a {difficulty} level.
+    Create a highly engaging, informative, and knowledgeable brief {duration}-minute lesson about "{topic}" at a {difficulty} level.
+    
+    IMPORTANT: Provide deep insights and useful information. Do not be overly basic. 
+    Even if the level is Beginner, include interesting facts or specialized knowledge that makes the article truly informative.
+    
     The lesson content should be formatted in Markdown (using ## for main headers, ### for subheaders, and bullet points).
     Include an interactive 3-question Multiple Choice Quiz (MCQ) based exactly on the content.
 
     Return the result strictly as a raw JSON object with the following schema (DO NOT wrap in ```json ... ``` tags, just raw JSON):
     {{
-        "title": "A catchy title for the lesson",
+        "title": "A catchy and professional title for the lesson",
         "topic": "{topic}",
         "difficulty": "{difficulty}",
         "duration": {duration},
@@ -47,15 +51,14 @@ async def generate_lesson_via_llm(topic: str, difficulty: str, duration: int) ->
     
     try:
         response = await client.chat.completions.create(
-            # We can use Google's free/cheap flash model on OpenRouter, or a generic open model.
-            # google/gemini-2.5-flash is popular and fast.
-            model="google/gemini-2.5-flash",
+            # Using Gemini 2.0 Flash for superior intelligence and speed
+            model="google/gemini-2.0-flash-001",
             messages=[
-                {"role": "system", "content": "You output strict raw JSON according to user specifications."},
+                {"role": "system", "content": "You are a professional educational content generator. You output strict raw JSON."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
-            max_tokens=2000
+            max_tokens=2500
         )
         
         content = response.choices[0].message.content.strip()
