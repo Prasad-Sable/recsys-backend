@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from database import progress_collection, sessions_collection, lessons_collection, users_collection
 from auth import get_current_user
 from bson import ObjectId
+from routes.gamification import get_badges, get_quests
 
 router = APIRouter(tags=["dashboard"])
 
@@ -63,4 +64,23 @@ async def get_dashboard(user=Depends(get_current_user)):
         "xp": xp,
         "topic_distribution": topic_distribution,
         "weak_areas": weak_areas,
+    }
+
+
+@router.get("/dashboard/all")
+async def get_dashboard_all(user=Depends(get_current_user)):
+    # Run dashboard, badges and quests logic concurrently
+    import asyncio
+    
+    # We call our existing logic functions
+    results = await asyncio.gather(
+        get_dashboard(user),
+        get_badges(user),
+        get_quests(user)
+    )
+    
+    return {
+        "stats": results[0],
+        "badges": results[1],
+        "quests": results[2]
     }
